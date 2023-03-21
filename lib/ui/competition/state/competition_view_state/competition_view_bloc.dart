@@ -12,6 +12,8 @@ class CompetitionViewBloc
       : super(CompetitionListState(List<Competition>.empty())) {
     on<CompetitionViewInit>(_onInit);
     on<CompetitionViewAdd>(_onAdded);
+    on<CompetitionViewSelect>(_onSelect);
+    on<CompetitionViewDelete>(_onDelete);
   }
   void _onInit(
       CompetitionViewInit event, Emitter<CompetitionViewState> emit) async {
@@ -22,6 +24,20 @@ class CompetitionViewBloc
       CompetitionViewAdd event, Emitter<CompetitionViewState> emit) async {
     Competition competition = _competitionAPI.createCompetition(event.name);
     _competitionAPI.updateCompetition(competition);
+
+    emit(CompetitionListState(List.from(_competitionAPI.getAllCompetitions())));
+    emit(CompetitionListSelection(competition.id));
+  }
+
+  void _onSelect(
+      CompetitionViewSelect event, Emitter<CompetitionViewState> emit) async {
+    emit(CompetitionListSelection(event.id));
+  }
+
+  void _onDelete(
+      CompetitionViewDelete event, Emitter<CompetitionViewState> emit) async {
+    Competition competition = _competitionAPI.getCompetitionById(event.id);
+    _competitionAPI.deleteCompetition(competition);
 
     emit(CompetitionListState(List.from(_competitionAPI.getAllCompetitions())));
   }

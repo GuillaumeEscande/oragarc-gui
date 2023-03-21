@@ -20,7 +20,18 @@ class CompetitionList extends StatelessWidget {
   }
 }
 
-class _CompetitionSelectList extends StatelessWidget {
+class _CompetitionSelectList extends StatefulWidget {
+  const _CompetitionSelectList({super.key});
+
+  @override
+  State<_CompetitionSelectList> createState() => _CompetitionSelectListState();
+}
+
+class _CompetitionSelectListState extends State<_CompetitionSelectList> {
+  final int selectedItem;
+
+  _CompetitionSelectListState() : selectedItem = -1;
+
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<CompetitionViewBloc, CompetitionViewState>(
@@ -32,7 +43,15 @@ class _CompetitionSelectList extends StatelessWidget {
                 padding: const EdgeInsets.all(8),
                 itemCount: state.competitions.length,
                 itemBuilder: (BuildContext context, int index) {
-                  return CompetitionListItem(state.competitions[index]);
+                  var competition = state.competitions[index];
+                  return GestureDetector(
+                      onTap: () {
+                        selectedItem == index;
+                        context
+                            .read<CompetitionViewBloc>()
+                            .add(CompetitionViewSelect(competition.id));
+                      },
+                      child: _SelectableCompetitionListItem(competition));
                 });
           }
           return Container();
@@ -73,7 +92,47 @@ class _AddCompetitionButton extends StatelessWidget {
 class _DeleteCompetitionButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return ElevatedButton(onPressed: () {}, child: const Text("Supprimer"));
+    return BlocBuilder<CompetitionViewBloc, CompetitionViewState>(
+        builder: (context, state) {
+      if (state is CompetitionListSelection) {
+        return ElevatedButton(
+            onPressed: () {
+              final Logger logger = Logger("Add button");
+              logger.fine("Add button pressed");
+              context
+                  .read<CompetitionViewBloc>()
+                  .add(CompetitionViewDelete(state.id));
+            },
+            child: const Text("Supprimer"));
+      }
+      return const ElevatedButton(onPressed: null, child: Text("Supprimer"));
+    });
+  }
+}
+
+class _SelectableCompetitionListItem extends StatelessWidget {
+  final Competition _competition;
+  const _SelectableCompetitionListItem(this._competition);
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<CompetitionViewBloc, CompetitionViewState>(
+        buildWhen: (previous, current) => current is CompetitionListSelection,
+        builder: (context, state) {
+          var isSelected = false;
+          if (state is CompetitionListSelection) {
+            if (state.id == _competition.id) {
+              isSelected = true;
+            }
+          }
+          if (isSelected) {
+            return ColoredBox(
+                color: Colors.lightBlue,
+                child: CompetitionListItem(_competition));
+          } else {
+            return CompetitionListItem(_competition);
+          }
+        });
   }
 }
 
@@ -83,7 +142,9 @@ class CompetitionListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
+    var content = SizedBox(
         height: 50, child: Center(child: Text('Entry ${_competition.name}')));
+
+    return content;
   }
 }
