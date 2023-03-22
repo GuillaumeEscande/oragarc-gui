@@ -15,8 +15,8 @@ class CompetitionListState extends CompetitionViewState {
 }
 
 class CompetitionListSelection extends CompetitionViewState {
-  final String id;
-  const CompetitionListSelection(this.id);
+  final Competition competition;
+  const CompetitionListSelection(this.competition);
   @override
-  List<Object> get props => [id];
+  List<Object> get props => [competition];
 }

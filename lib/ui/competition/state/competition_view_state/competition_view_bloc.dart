@@ -26,12 +26,13 @@ class CompetitionViewBloc
     _competitionAPI.updateCompetition(competition);
 
     emit(CompetitionListState(List.from(_competitionAPI.getAllCompetitions())));
-    emit(CompetitionListSelection(competition.id));
+    emit(CompetitionListSelection(competition));
   }
 
   void _onSelect(
       CompetitionViewSelect event, Emitter<CompetitionViewState> emit) async {
-    emit(CompetitionListSelection(event.id));
+    emit(
+        CompetitionListSelection(_competitionAPI.getCompetitionById(event.id)));
   }
 
   void _onDelete(
@@ -40,5 +41,6 @@ class CompetitionViewBloc
     _competitionAPI.deleteCompetition(competition);
 
     emit(CompetitionListState(List.from(_competitionAPI.getAllCompetitions())));
+    // Todo event remove selection<
   }
 }

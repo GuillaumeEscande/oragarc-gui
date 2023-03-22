@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:logging/logging.dart';
-import 'package:orgarc_core/src/competition/model/competition.dart';
+import 'package:orgarc_core/orgarc_core.dart';
 import 'package:orgarc_gui/ui/competition/state/competition_view_state/competition_view_bloc.dart';
 import 'package:orgarc_gui/ui/competition/state/competition_view_state/competition_view_event.dart';
 import 'package:orgarc_gui/ui/competition/state/competition_view_state/competition_view_state.dart';
@@ -12,7 +12,7 @@ class CompetitionList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(children: [
-      Expanded(
+      const Expanded(
         child: _CompetitionSelectList(),
       ),
       SizedBox(height: 50, child: _CompetitionButtonBottomBar())
@@ -21,7 +21,7 @@ class CompetitionList extends StatelessWidget {
 }
 
 class _CompetitionSelectList extends StatefulWidget {
-  const _CompetitionSelectList({super.key});
+  const _CompetitionSelectList();
 
   @override
   State<_CompetitionSelectList> createState() => _CompetitionSelectListState();
@@ -45,6 +45,7 @@ class _CompetitionSelectListState extends State<_CompetitionSelectList> {
                 itemBuilder: (BuildContext context, int index) {
                   var competition = state.competitions[index];
                   return GestureDetector(
+                      behavior: HitTestBehavior.translucent,
                       onTap: () {
                         selectedItem == index;
                         context
@@ -79,13 +80,56 @@ class _AddCompetitionButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return ElevatedButton(
         onPressed: () {
-          final Logger logger = Logger("Add button");
-          logger.fine("Add button pressed");
-          context
-              .read<CompetitionViewBloc>()
-              .add(const CompetitionViewAdd("TEST"));
+          showDialog<String>(
+              barrierDismissible: false,
+              context: context,
+              builder: (_) => BlocProvider.value(
+                  value: BlocProvider.of<CompetitionViewBloc>(context),
+                  child: const _AddCompetitionNameDialogBox()));
         },
         child: const Text("Ajouter"));
+  }
+}
+
+class _AddCompetitionNameDialogBox extends StatefulWidget {
+  const _AddCompetitionNameDialogBox({super.key});
+
+  @override
+  State<_AddCompetitionNameDialogBox> createState() =>
+      _AddCompetitionNameDialogBoxState();
+}
+
+class _AddCompetitionNameDialogBoxState
+    extends State<_AddCompetitionNameDialogBox> {
+  final _competitionNameCtrl = TextEditingController();
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text("Ajouter"),
+      actionsOverflowButtonSpacing: 20,
+      actions: [
+        ElevatedButton(
+            onPressed: () {
+              context
+                  .read<CompetitionViewBloc>()
+                  .add(CompetitionViewAdd(_competitionNameCtrl.text));
+              Navigator.pop(context);
+            },
+            child: const Text("Ajouter")),
+        ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            child: const Text("Annuler")),
+      ],
+      content: TextField(
+        controller: _competitionNameCtrl,
+        decoration: const InputDecoration(
+          labelText: 'Nom',
+          hintText: 'Nom de la competition',
+        ),
+      ),
+    );
   }
 }
 
@@ -101,7 +145,7 @@ class _DeleteCompetitionButton extends StatelessWidget {
               logger.fine("Add button pressed");
               context
                   .read<CompetitionViewBloc>()
-                  .add(CompetitionViewDelete(state.id));
+                  .add(CompetitionViewDelete(state.competition.id));
             },
             child: const Text("Supprimer"));
       }
@@ -121,7 +165,7 @@ class _SelectableCompetitionListItem extends StatelessWidget {
         builder: (context, state) {
           var isSelected = false;
           if (state is CompetitionListSelection) {
-            if (state.id == _competition.id) {
+            if (state.competition == _competition) {
               isSelected = true;
             }
           }
