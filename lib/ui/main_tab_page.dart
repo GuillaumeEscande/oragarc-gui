@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'archer/archer_page.dart';
 import 'competition/competition_page.dart';
-import 'competition/state/competition_view_state/competition_view_bloc.dart';
+import 'competition/state/competition_view_bloc.dart';
 import 'export/export_page.dart';
 import 'result/result_page.dart';
 import 'target/target_page.dart';
@@ -70,13 +70,13 @@ class MainTabPage extends StatelessWidget {
                   ],
                 ), //TabBar
               ),
-              body: const TabBarView(
+              body: TabBarView(
                 children: [
-                  CompetitionsPage(),
+                  const CompetitionsPage(),
                   ArchersPage(),
-                  TargetsPage(),
-                  ResultsPage(),
-                  ExportPage(),
+                  const TargetsPage(),
+                  const ResultsPage(),
+                  const ExportPage(),
                 ],
               ),
             )));

@@ -15,9 +15,11 @@ class CompetitionViewBloc
     on<CompetitionViewSelect>(_onSelect);
     on<CompetitionViewDelete>(_onDelete);
   }
+
   void _onInit(
       CompetitionViewInit event, Emitter<CompetitionViewState> emit) async {
     emit(CompetitionListState(_competitionAPI.getAllCompetitions()));
+    emit(CompetitionListNoSelection());
   }
 
   void _onAdded(
@@ -25,8 +27,11 @@ class CompetitionViewBloc
     Competition competition = _competitionAPI.createCompetition(event.name);
     _competitionAPI.updateCompetition(competition);
 
-    emit(CompetitionListState(List.from(_competitionAPI.getAllCompetitions())));
-    emit(CompetitionListSelection(competition));
+    var competitions =
+        List<Competition>.from(_competitionAPI.getAllCompetitions());
+
+    emit(CompetitionListState(competitions));
+    emit(CompetitionListSelection(competitions.last));
   }
 
   void _onSelect(
@@ -40,7 +45,14 @@ class CompetitionViewBloc
     Competition competition = _competitionAPI.getCompetitionById(event.id);
     _competitionAPI.deleteCompetition(competition);
 
-    emit(CompetitionListState(List.from(_competitionAPI.getAllCompetitions())));
-    // Todo event remove selection<
+    var competitions =
+        List<Competition>.from(_competitionAPI.getAllCompetitions());
+
+    emit(CompetitionListState(competitions));
+    if (competitions.isNotEmpty) {
+      emit(CompetitionListSelection(competitions.last));
+    } else {
+      emit(CompetitionListNoSelection());
+    }
   }
 }

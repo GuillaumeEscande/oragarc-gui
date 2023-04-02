@@ -20,3 +20,8 @@ class CompetitionListSelection extends CompetitionViewState {
   @override
   List<Object> get props => [competition];
 }
+
+class CompetitionListNoSelection extends CompetitionViewState {
+  @override
+  List<Object> get props => [];
+}

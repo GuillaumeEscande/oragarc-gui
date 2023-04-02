@@ -4,8 +4,9 @@ import 'package:orgarc_core/orgarc_core.dart';
 import 'package:orgarc_gui/ui/competition/state/competition_view_bloc.dart';
 import 'package:orgarc_gui/ui/competition/state/competition_view_state.dart';
 
-class CompetitionForm extends StatelessWidget {
-  const CompetitionForm({super.key});
+class SelectableCompetitionListItem extends StatelessWidget {
+  final Competition _competition;
+  const SelectableCompetitionListItem(this._competition, {super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -19,23 +20,35 @@ class CompetitionForm extends StatelessWidget {
       }
       return false;
     }, builder: (context, state) {
+      var isSelected = false;
       if (state is CompetitionListSelection) {
-        var competition = state.competition;
-        return _CompetitionEditForm(competition);
+        if (state.competition == _competition) {
+          isSelected = true;
+        }
       }
-      return Container();
+      if (state is CompetitionListNoSelection) {
+        isSelected = false;
+      }
+
+      if (isSelected) {
+        return ColoredBox(
+            color: Colors.lightBlue, child: _CompetitionListItem(_competition));
+      } else {
+        return _CompetitionListItem(_competition);
+      }
     });
   }
 }
 
-class _CompetitionEditForm extends StatelessWidget {
+class _CompetitionListItem extends StatelessWidget {
   final Competition _competition;
-  const _CompetitionEditForm(this._competition);
+  const _CompetitionListItem(this._competition);
 
   @override
   Widget build(BuildContext context) {
-    return Column(children: [
-      TextField(controller: TextEditingController(text: _competition.name)),
-    ]);
+    var content = SizedBox(
+        height: 50, child: Center(child: Text('Entry ${_competition.name}')));
+
+    return content;
   }
 }
